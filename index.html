@@ -201,27 +201,29 @@
             }
         }
 
-        // Método otimizado para mobile
-        function copyTextMobile(text) {
-            // Tenta vários métodos
+        // Método otimizado para desktop e mobile
+        async function copyText(text) {
+            // Método 1: Clipboard API (melhor para desktop/WhatsApp Web)
+            if (navigator.clipboard && window.isSecureContext) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    return true;
+                } catch (err) {
+                    console.log('Clipboard API falhou:', err);
+                }
+            }
             
-            // Método 1: Selecionar o input e copiar
+            // Método 2: Selecionar o input e copiar
             try {
+                textoInput.focus();
                 textoInput.select();
-                textoInput.setSelectionRange(0, 99999); // Para mobile
+                textoInput.setSelectionRange(0, 99999);
                 
                 if (document.execCommand('copy')) {
                     return true;
                 }
             } catch (err) {
-                console.log('Método 1 falhou');
-            }
-
-            // Método 2: Clipboard API
-            if (navigator.clipboard) {
-                return navigator.clipboard.writeText(text)
-                    .then(() => true)
-                    .catch(() => false);
+                console.log('Método input falhou:', err);
             }
 
             // Método 3: Criar textarea temporário
@@ -244,17 +246,22 @@
                 
                 return result;
             } catch (err) {
-                console.log('Método 3 falhou');
+                console.log('Método textarea falhou:', err);
                 return false;
             }
         }
 
         // Evento do botão
         copyBtn.addEventListener('click', async () => {
-            const success = await copyTextMobile(textoParaCopiar);
+            const success = await copyText(textoParaCopiar);
             
             if (success) {
                 showStatus('Texto copiado! Pode colar agora.', true);
+                
+                // Tenta fechar automaticamente após 800ms
+                setTimeout(() => {
+                    window.close();
+                }, 800);
             } else {
                 showStatus('Use o método manual acima', false);
                 textoInput.focus();
@@ -268,14 +275,18 @@
             this.setSelectionRange(0, 99999);
         });
 
-        // Tenta copiar automaticamente ao carregar (pode não funcionar em alguns navegadores)
+        // Tenta copiar automaticamente ao carregar
         window.addEventListener('load', async () => {
-            // Aguarda um pouco para a página carregar completamente
             setTimeout(async () => {
-                const success = await copyTextMobile(textoParaCopiar);
+                const success = await copyText(textoParaCopiar);
                 
                 if (success) {
                     showStatus('Texto copiado automaticamente!', true);
+                    
+                    // Tenta fechar automaticamente após 1 segundo
+                    setTimeout(() => {
+                        window.close();
+                    }, 1000);
                 } else {
                     // Se não conseguir automaticamente, seleciona o texto
                     textoInput.focus();
