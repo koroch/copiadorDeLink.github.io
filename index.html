@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copiando...</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            padding: 20px;
+        }
+        .container {
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .check {
+            font-size: 80px;
+            animation: pop 0.4s ease;
+            margin-bottom: 20px;
+        }
+        @keyframes pop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        .texto-copiado {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            max-width: 500px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="check">✓</div>
+        <h1>Texto copiado!</h1>
+        <p>O texto foi copiado para sua área de transferência</p>
+        <div class="texto-copiado" id="textoMostrar"></div>
+    </div>
+
+    <script>
+        // Pega o texto da URL (parâmetro ?texto=...)
+        const urlParams = new URLSearchParams(window.location.search);
+        const texto = urlParams.get('texto') || decodeURIComponent(window.location.hash.substring(1)) || 'Nenhum texto fornecido';
+        
+        // Mostra o texto na tela
+        document.getElementById('textoMostrar').textContent = texto;
+        
+        // Função para copiar
+        function copiarTexto(conteudo) {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                // Método moderno
+                navigator.clipboard.writeText(conteudo).catch(err => {
+                    usarMetodoAlternativo(conteudo);
+                });
+            } else {
+                // Fallback para navegadores antigos
+                usarMetodoAlternativo(conteudo);
+            }
+        }
+        
+        // Método alternativo de cópia
+        function usarMetodoAlternativo(conteudo) {
+            const textarea = document.createElement('textarea');
+            textarea.value = conteudo;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Erro ao copiar:', err);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+        
+        // Executa a cópia
+        copiarTexto(texto);
+        
+        // Fecha automaticamente após 1 segundo (opcional - remova se não quiser)
+        setTimeout(() => {
+            window.close();
+        }, 1000);
+    </script>
+</body>
+</html>
