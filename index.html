@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Copiando...</title>
     <style>
         * {
@@ -246,7 +246,6 @@
         const instructionBox = document.getElementById('instructionBox');
         const closeInfo = document.getElementById('closeInfo');
 
-        let userInteracted = false;
         let copiado = false;
 
         // Coloca o texto na textarea
@@ -270,50 +269,54 @@
             instructionBox.style.display = 'none';
         }
 
-        async function copyTextToClipboard() {
-            let copied = false;
-
-            // Método 1: Clipboard API (mais moderno e confiável)
+        // Método otimizado para desktop e mobile
+        async function copyText(text) {
+            // Método 1: Clipboard API (melhor para desktop/WhatsApp Web)
             if (navigator.clipboard && window.isSecureContext) {
                 try {
-                    await navigator.clipboard.writeText(textoParaCopiar);
-                    copied = true;
+                    await navigator.clipboard.writeText(text);
+                    return true;
                 } catch (err) {
                     console.log('Clipboard API falhou:', err);
                 }
             }
             
-            // Método 2: execCommand com seleção
-            if (!copied) {
-                try {
-                    textoArea.focus();
-                    textoArea.select();
-                    textoArea.setSelectionRange(0, textoArea.value.length);
-                    copied = document.execCommand('copy');
-                } catch (err) {
-                    console.log('execCommand falhou:', err);
+            // Método 2: Selecionar a textarea e copiar
+            try {
+                textoArea.focus();
+                textoArea.select();
+                textoArea.setSelectionRange(0, textoArea.value.length);
+                
+                if (document.execCommand('copy')) {
+                    return true;
                 }
+            } catch (err) {
+                console.log('Método textarea falhou:', err);
             }
 
-            // Método 3: Textarea temporária
-            if (!copied) {
-                try {
-                    const temp = document.createElement('textarea');
-                    temp.value = textoParaCopiar;
-                    temp.style.position = 'fixed';
-                    temp.style.left = '-9999px';
-                    temp.style.opacity = '0';
-                    document.body.appendChild(temp);
-                    temp.focus();
-                    temp.select();
-                    copied = document.execCommand('copy');
-                    document.body.removeChild(temp);
-                } catch (err) {
-                    console.log('Método temporário falhou:', err);
-                }
+            // Método 3: Criar textarea temporário
+            try {
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                textarea.style.position = 'fixed';
+                textarea.style.top = '0';
+                textarea.style.left = '0';
+                textarea.style.width = '2em';
+                textarea.style.height = '2em';
+                textarea.style.opacity = '0';
+                
+                document.body.appendChild(textarea);
+                textarea.focus();
+                textarea.select();
+                
+                const result = document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                return result;
+            } catch (err) {
+                console.log('Método temporário falhou:', err);
+                return false;
             }
-
-            return copied;
         }
 
         async function handleCopy() {
@@ -323,9 +326,9 @@
             copyBtn.classList.add('ripple');
             setTimeout(() => copyBtn.classList.remove('ripple'), 600);
 
-            const copied = await copyTextToClipboard();
+            const success = await copyText(textoParaCopiar);
 
-            if (copied) {
+            if (success) {
                 copiado = true;
                 vibrate();
                 
@@ -336,20 +339,19 @@
                 copyBtn.classList.add('success');
                 copyBtn.textContent = '✅ TEXTO COPIADO!';
                 copyBtn.disabled = true;
-                showStatus('✅ Texto copiado! Pode colar onde precisar (Ctrl+V ou pressione e segure para colar)', 'success');
+                showStatus('✅ Texto copiado! Cole onde precisar (Ctrl+V ou pressione e segure para colar)', 'success');
                 hideInstruction();
-                closeInfo.textContent = '✅ Pronto! Fechando em 1 segundo...';
+                closeInfo.textContent = '✅ Fechando em 1.5 segundos...';
                 closeInfo.style.color = '#28a745';
                 closeInfo.style.fontWeight = '600';
                 
-                // Tenta fechar a janela após 1 segundo
+                // Fecha automaticamente após 1500ms
                 setTimeout(() => {
                     window.close();
-                    // Se não conseguir fechar, atualiza a mensagem
                     setTimeout(() => {
                         closeInfo.textContent = '✅ Pronto! Pode fechar esta aba manualmente';
                     }, 500);
-                }, 1000);
+                }, 1500);
             } else {
                 vibrate();
                 textoArea.focus();
@@ -367,7 +369,6 @@
         // Evento do botão principal
         copyBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            userInteracted = true;
             await handleCopy();
         });
 
@@ -381,11 +382,39 @@
 
         // Tenta copiar automaticamente ao carregar
         window.addEventListener('load', async () => {
-            // Aguarda 1000ms e simula clique no botão para forçar a cópia
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Simula o clique no botão (isso garante que há interação do usuário)
-            copyBtn.click();
+            setTimeout(async () => {
+                const success = await copyText(textoParaCopiar);
+                
+                if (success) {
+                    copiado = true;
+                    vibrate();
+                    
+                    textoArea.classList.add('copied');
+                    title.textContent = '✅ COPIADO AUTOMATICAMENTE!';
+                    subtitle.textContent = 'Texto já está na área de transferência';
+                    copyBtn.classList.remove('pulse');
+                    copyBtn.classList.add('success');
+                    copyBtn.textContent = '✅ JÁ COPIADO!';
+                    copyBtn.disabled = true;
+                    showStatus('✅ Texto copiado automaticamente! Pode colar onde precisar', 'success');
+                    hideInstruction();
+                    closeInfo.textContent = '✅ Fechando em 1.5 segundos...';
+                    closeInfo.style.color = '#28a745';
+                    closeInfo.style.fontWeight = '600';
+                    
+                    // Fecha automaticamente após 1500ms
+                    setTimeout(() => {
+                        window.close();
+                        setTimeout(() => {
+                            closeInfo.textContent = '✅ Pronto! Pode fechar esta aba manualmente';
+                        }, 500);
+                    }, 1500);
+                } else {
+                    // Se não conseguir automaticamente, deixa o botão pulsando
+                    textoArea.focus();
+                    textoArea.select();
+                }
+            }, 100);
         });
     </script>
 </body>
