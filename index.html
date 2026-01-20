@@ -255,6 +255,20 @@
         // Ajusta altura da textarea
         textoArea.style.height = Math.min(Math.max(textoArea.scrollHeight, 120), 300) + 'px';
 
+        function isMobile() {
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        function redirectToWhatsApp() {
+            if (isMobile()) {
+                // No mobile, abre o app do WhatsApp
+                window.location.href = 'whatsapp://';
+            } else {
+                // No desktop, abre o WhatsApp Web
+                window.location.href = 'https://web.whatsapp.com/';
+            }
+        }
+
         function vibrate() {
             if ('vibrate' in navigator) {
                 navigator.vibrate([100, 50, 100]);
@@ -344,8 +358,7 @@
                 
                 // Redireciona para o WhatsApp após 2 segundos
                 setTimeout(() => {
-                    // Abre o WhatsApp (funciona em mobile e desktop)
-                    window.location.href = 'https://wa.me/';
+                    redirectToWhatsApp();
                 }, 2000);
             } else {
                 vibrate();
