@@ -255,20 +255,6 @@
         // Ajusta altura da textarea
         textoArea.style.height = Math.min(Math.max(textoArea.scrollHeight, 120), 300) + 'px';
 
-        function isMobile() {
-            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        }
-
-        function redirectToWhatsApp() {
-            if (isMobile()) {
-                // No mobile, abre o app do WhatsApp
-                window.location.href = 'whatsapp://';
-            } else {
-                // No desktop, abre o WhatsApp Web
-                window.location.href = 'https://web.whatsapp.com/';
-            }
-        }
-
         function vibrate() {
             if ('vibrate' in navigator) {
                 navigator.vibrate([100, 50, 100]);
@@ -350,16 +336,20 @@
                 copyBtn.classList.add('success');
                 copyBtn.textContent = '✅ TEXTO COPIADO!';
                 copyBtn.disabled = true;
-                showStatus('✅ Texto copiado! Redirecionando para o WhatsApp...', 'success');
+                showStatus('✅ Texto copiado! Pode colar onde precisar (Ctrl+V ou pressione e segure para colar)', 'success');
                 hideInstruction();
-                closeInfo.textContent = '✅ Redirecionando para o WhatsApp em 2 segundos...';
+                closeInfo.textContent = '✅ Pronto! Fechando em 1 segundo...';
                 closeInfo.style.color = '#28a745';
                 closeInfo.style.fontWeight = '600';
                 
-                // Redireciona para o WhatsApp após 2 segundos
+                // Tenta fechar a janela após 1 segundo
                 setTimeout(() => {
-                    redirectToWhatsApp();
-                }, 2000);
+                    window.close();
+                    // Se não conseguir fechar, atualiza a mensagem
+                    setTimeout(() => {
+                        closeInfo.textContent = '✅ Pronto! Pode fechar esta aba manualmente';
+                    }, 500);
+                }, 1000);
             } else {
                 vibrate();
                 textoArea.focus();
