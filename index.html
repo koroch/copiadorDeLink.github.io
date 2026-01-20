@@ -44,32 +44,14 @@
             font-size: 14px;
         }
 
-        .instruction-box {
-            background: #fff3cd;
-            border-left: 4px solid #ffc107;
-            padding: 15px;
-            border-radius: 8px;
+        /* Input que o usuário pode tocar e copiar facilmente */
+        .input-container {
+            position: relative;
             margin-bottom: 15px;
-            text-align: left;
         }
 
-        .instruction-box strong {
-            color: #856404;
-            display: block;
-            margin-bottom: 8px;
-            font-size: 15px;
-        }
-
-        .instruction-box p {
-            margin-left: 0;
-            color: #856404;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .texto-area {
+        .texto-input {
             width: 100%;
-            min-height: 120px;
             padding: 15px;
             font-size: 16px;
             border: 3px solid #25D366;
@@ -77,196 +59,146 @@
             background: #f9f9f9;
             color: #333;
             font-family: 'Courier New', monospace;
-            resize: vertical;
-            margin-bottom: 20px;
-            line-height: 1.5;
+            text-align: center;
+            font-weight: 500;
+            cursor: text;
+            outline: none;
         }
 
-        .texto-area:focus {
-            outline: none;
+        .texto-input:focus {
             background: #fff;
             border-color: #128C7E;
-            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.2);
         }
 
-        .texto-area.copied {
-            background: #d4edda;
-            border-color: #28a745;
+        .instruction-box {
+            background: #e8f5e9;
+            border-left: 4px solid #25D366;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        .instruction-box strong {
+            color: #128C7E;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .instruction-box ol {
+            margin-left: 20px;
+            color: #555;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .instruction-box li {
+            margin-bottom: 5px;
         }
 
         .btn-copy {
             background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
             color: white;
             border: none;
-            padding: 18px 30px;
+            padding: 16px 30px;
             border-radius: 30px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 700;
             cursor: pointer;
             width: 100%;
             box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
             transition: all 0.2s;
-            touch-action: manipulation;
-            position: relative;
-            overflow: hidden;
         }
 
         .btn-copy:active {
-            transform: scale(0.96);
+            transform: scale(0.98);
         }
 
         .btn-copy.success {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        }
-
-        .btn-copy::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            transform: translate(-50%, -50%);
-            transition: width 0.6s, height 0.6s;
-        }
-
-        .btn-copy.ripple::before {
-            width: 300px;
-            height: 300px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
         }
 
         .status {
-            margin-top: 15px;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 15px;
-            font-weight: 600;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
             display: none;
         }
 
         .status.show {
             display: block;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .status.success {
             background: #d4edda;
             color: #155724;
-            border-left: 4px solid #28a745;
-        }
-
-        .status.info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border-left: 4px solid #17a2b8;
         }
 
         .status.error {
-            background: #f8d7da;
-            color: #721c24;
-            border-left: 4px solid #dc3545;
+            background: #fff3cd;
+            color: #856404;
         }
 
         .close-info {
             margin-top: 15px;
-            font-size: 13px;
+            font-size: 12px;
             color: #999;
-        }
-
-        .highlight {
-            animation: highlight 0.6s ease-in-out;
-        }
-
-        @keyframes highlight {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.02); background: #FFE082; }
-        }
-
-        .pulse {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 id="title">📋 Copie o texto</h1>
-        <p class="subtitle" id="subtitle">Toque no botão verde para copiar</p>
+        <h1 id="title">Copie o texto abaixo</h1>
+        <p class="subtitle">Toque no campo e selecione "Copiar"</p>
         
-        <div class="instruction-box" id="instructionBox">
-            <strong>⚠️ Importante:</strong>
-            <p>Toque no botão verde abaixo para copiar o texto automaticamente.</p>
+        <div class="instruction-box">
+            <strong>Como copiar no celular:</strong>
+            <ol>
+                <li>Toque no texto abaixo</li>
+                <li>Toque em "Selecionar tudo"</li>
+                <li>Toque em "Copiar"</li>
+            </ol>
         </div>
 
-        <textarea id="textoArea" class="texto-area" readonly></textarea>
+        <div class="input-container">
+            <input type="text" id="textoInput" class="texto-input" readonly>
+        </div>
 
-        <button id="copyBtn" class="btn-copy pulse">
-            📋 COPIAR TEXTO
+        <button id="copyBtn" class="btn-copy">
+            TENTAR COPIAR AUTOMATICAMENTE
         </button>
 
         <div id="status" class="status"></div>
 
-        <p class="close-info" id="closeInfo">Toque no botão para copiar</p>
+        <p class="close-info">Você pode fechar esta aba depois de copiar</p>
     </div>
 
     <script>
-        // Pega o texto do parâmetro ?texto=
+        // Pega o texto da URL
         const urlParams = new URLSearchParams(window.location.search);
-        let textoParaCopiar = urlParams.get('texto') || 'Nenhum texto fornecido';
+        const textoParaCopiar = urlParams.get('texto') || decodeURIComponent(window.location.hash.substring(1)) || 'Nenhum texto fornecido';
         
-        // Decodifica caracteres especiais caso venha codificado
-        try {
-            textoParaCopiar = decodeURIComponent(textoParaCopiar);
-        } catch (e) {
-            // Se já estiver decodificado, mantém como está
-        }
-        
-        const textoArea = document.getElementById('textoArea');
+        const textoInput = document.getElementById('textoInput');
         const copyBtn = document.getElementById('copyBtn');
         const status = document.getElementById('status');
         const title = document.getElementById('title');
-        const subtitle = document.getElementById('subtitle');
-        const instructionBox = document.getElementById('instructionBox');
-        const closeInfo = document.getElementById('closeInfo');
 
-        let copiado = false;
+        // Coloca o texto no input
+        textoInput.value = textoParaCopiar;
 
-        // Coloca o texto na textarea
-        textoArea.value = textoParaCopiar;
-
-        // Ajusta altura da textarea
-        textoArea.style.height = Math.min(Math.max(textoArea.scrollHeight, 120), 300) + 'px';
-
-        function vibrate() {
-            if ('vibrate' in navigator) {
-                navigator.vibrate([100, 50, 100]);
-            }
-        }
-
-        function showStatus(message, type = 'info') {
+        // Função para mostrar status
+        function showStatus(message, isSuccess) {
             status.textContent = message;
-            status.className = 'status show ' + type;
-        }
-
-        function hideInstruction() {
-            instructionBox.style.display = 'none';
+            status.className = 'status show ' + (isSuccess ? 'success' : 'error');
+            
+            if (isSuccess) {
+                title.textContent = 'Texto copiado!';
+                copyBtn.classList.add('success');
+                copyBtn.textContent = 'COPIADO COM SUCESSO!';
+            }
         }
 
         // Método otimizado para desktop e mobile
@@ -281,17 +213,17 @@
                 }
             }
             
-            // Método 2: Selecionar a textarea e copiar
+            // Método 2: Selecionar o input e copiar
             try {
-                textoArea.focus();
-                textoArea.select();
-                textoArea.setSelectionRange(0, textoArea.value.length);
+                textoInput.focus();
+                textoInput.select();
+                textoInput.setSelectionRange(0, 99999);
                 
                 if (document.execCommand('copy')) {
                     return true;
                 }
             } catch (err) {
-                console.log('Método textarea falhou:', err);
+                console.log('Método input falhou:', err);
             }
 
             // Método 3: Criar textarea temporário
@@ -314,70 +246,33 @@
                 
                 return result;
             } catch (err) {
-                console.log('Método temporário falhou:', err);
+                console.log('Método textarea falhou:', err);
                 return false;
             }
         }
 
-        async function handleCopy() {
-            if (copiado) return;
-
-            // Efeito visual no botão
-            copyBtn.classList.add('ripple');
-            setTimeout(() => copyBtn.classList.remove('ripple'), 600);
-
+        // Evento do botão
+        copyBtn.addEventListener('click', async () => {
             const success = await copyText(textoParaCopiar);
-
+            
             if (success) {
-                copiado = true;
-                vibrate();
+                showStatus('Texto copiado! Pode colar agora.', true);
                 
-                textoArea.classList.add('copied');
-                title.textContent = '✅ COPIADO COM SUCESSO!';
-                subtitle.textContent = 'Agora você pode colar onde quiser';
-                copyBtn.classList.remove('pulse');
-                copyBtn.classList.add('success');
-                copyBtn.textContent = '✅ TEXTO COPIADO!';
-                copyBtn.disabled = true;
-                showStatus('✅ Texto copiado! Cole onde precisar (Ctrl+V ou pressione e segure para colar)', 'success');
-                hideInstruction();
-                closeInfo.textContent = '✅ Fechando em 1.5 segundos...';
-                closeInfo.style.color = '#28a745';
-                closeInfo.style.fontWeight = '600';
-                
-                // Fecha automaticamente após 1500ms
+                // Tenta fechar automaticamente após 800ms
                 setTimeout(() => {
                     window.close();
-                    setTimeout(() => {
-                        closeInfo.textContent = '✅ Pronto! Pode fechar esta aba manualmente';
-                    }, 500);
-                }, 1500);
+                }, 800);
             } else {
-                vibrate();
-                textoArea.focus();
-                textoArea.select();
-                textoArea.setSelectionRange(0, textoArea.value.length);
-                textoArea.classList.add('highlight');
-                setTimeout(() => textoArea.classList.remove('highlight'), 600);
-                
-                title.textContent = '📝 Texto selecionado';
-                subtitle.textContent = 'Toque em "Copiar" no menu que apareceu';
-                showStatus('👆 Toque em "Copiar" no menu ou tente novamente', 'info');
+                showStatus('Use o método manual acima', false);
+                textoInput.focus();
+                textoInput.select();
             }
-        }
-
-        // Evento do botão principal
-        copyBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            await handleCopy();
         });
 
-        // Permitir seleção manual se necessário
-        textoArea.addEventListener('click', function() {
-            if (copiado) return;
+        // Seleciona automaticamente o texto ao clicar no input
+        textoInput.addEventListener('click', function() {
             this.select();
-            this.setSelectionRange(0, this.value.length);
-            showStatus('👆 Texto selecionado. Toque em "Copiar" ou use o botão verde', 'info');
+            this.setSelectionRange(0, 99999);
         });
 
         // Tenta copiar automaticamente ao carregar
@@ -386,33 +281,16 @@
                 const success = await copyText(textoParaCopiar);
                 
                 if (success) {
-                    copiado = true;
-                    vibrate();
+                    showStatus('Texto copiado automaticamente!', true);
                     
-                    textoArea.classList.add('copied');
-                    title.textContent = '✅ COPIADO AUTOMATICAMENTE!';
-                    subtitle.textContent = 'Texto já está na área de transferência';
-                    copyBtn.classList.remove('pulse');
-                    copyBtn.classList.add('success');
-                    copyBtn.textContent = '✅ JÁ COPIADO!';
-                    copyBtn.disabled = true;
-                    showStatus('✅ Texto copiado automaticamente! Pode colar onde precisar', 'success');
-                    hideInstruction();
-                    closeInfo.textContent = '✅ Fechando em 1.5 segundos...';
-                    closeInfo.style.color = '#28a745';
-                    closeInfo.style.fontWeight = '600';
-                    
-                    // Fecha automaticamente após 1500ms
+                    // Tenta fechar automaticamente após 1 segundo
                     setTimeout(() => {
                         window.close();
-                        setTimeout(() => {
-                            closeInfo.textContent = '✅ Pronto! Pode fechar esta aba manualmente';
-                        }, 500);
-                    }, 1500);
+                    }, 1000);
                 } else {
-                    // Se não conseguir automaticamente, deixa o botão pulsando
-                    textoArea.focus();
-                    textoArea.select();
+                    // Se não conseguir automaticamente, seleciona o texto
+                    textoInput.focus();
+                    textoInput.select();
                 }
             }, 100);
         });
