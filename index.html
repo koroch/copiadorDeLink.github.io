@@ -381,8 +381,8 @@
 
         // Tenta copiar automaticamente ao carregar
         window.addEventListener('load', async () => {
-            // Aguarda um pouco para a página estar completamente carregada
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // Aguarda 500ms antes de tentar copiar
+            await new Promise(resolve => setTimeout(resolve, 500));
             
             // Tenta copiar automaticamente
             const copied = await copyTextToClipboard();
@@ -401,17 +401,17 @@
                 copyBtn.disabled = true;
                 showStatus('✅ Texto copiado automaticamente! Pode colar onde precisar', 'success');
                 hideInstruction();
-                closeInfo.textContent = '✅ Fechando em 1 segundo...';
+                closeInfo.textContent = '✅ Fechando em 1.5 segundos...';
                 closeInfo.style.color = '#28a745';
                 closeInfo.style.fontWeight = '600';
                 
-                // Fecha automaticamente após 1 segundo
+                // Fecha automaticamente após 1500ms
                 setTimeout(() => {
                     window.close();
                     setTimeout(() => {
                         closeInfo.textContent = '✅ Pronto! Pode fechar esta aba manualmente';
                     }, 500);
-                }, 1000);
+                }, 1500);
             } else {
                 // Se a cópia automática falhar, mostra o botão pulsando
                 instructionBox.innerHTML = '<strong>⚠️ Cópia automática bloqueada pelo navegador</strong><p>Toque no botão verde abaixo para copiar.</p>';
