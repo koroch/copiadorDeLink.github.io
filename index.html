@@ -381,8 +381,8 @@
 
         // Tenta copiar automaticamente ao carregar
         window.addEventListener('load', async () => {
-            // Aguarda 600ms e simula clique no botão para forçar a cópia
-            await new Promise(resolve => setTimeout(resolve, 600));
+            // Aguarda 1000ms e simula clique no botão para forçar a cópia
+            await new Promise(resolve => setTimeout(resolve, 1000));
             
             // Simula o clique no botão (isso garante que há interação do usuário)
             copyBtn.click();
