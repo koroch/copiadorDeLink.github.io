@@ -45,8 +45,8 @@
         }
 
         .instruction-box {
-            background: #e8f5e9;
-            border-left: 4px solid #25D366;
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 15px;
@@ -54,7 +54,7 @@
         }
 
         .instruction-box strong {
-            color: #128C7E;
+            color: #856404;
             display: block;
             margin-bottom: 8px;
             font-size: 15px;
@@ -62,7 +62,7 @@
 
         .instruction-box p {
             margin-left: 0;
-            color: #555;
+            color: #856404;
             font-size: 14px;
             line-height: 1.6;
         }
@@ -107,6 +107,8 @@
             box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
             transition: all 0.2s;
             touch-action: manipulation;
+            position: relative;
+            overflow: hidden;
         }
 
         .btn-copy:active {
@@ -115,6 +117,24 @@
 
         .btn-copy.success {
             background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn-copy::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-copy.ripple::before {
+            width: 300px;
+            height: 300px;
         }
 
         .status {
@@ -145,11 +165,19 @@
         .status.success {
             background: #d4edda;
             color: #155724;
+            border-left: 4px solid #28a745;
         }
 
         .status.info {
             background: #d1ecf1;
             color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
         }
 
         .close-info {
@@ -166,6 +194,15 @@
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.02); background: #FFE082; }
         }
+
+        .pulse {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
     </style>
 </head>
 <body>
@@ -174,26 +211,32 @@
         <p class="subtitle" id="subtitle">Toque no botão verde para copiar</p>
         
         <div class="instruction-box" id="instructionBox">
-            <strong>📱 Como funciona:</strong>
-            <p>Toque no botão verde abaixo. Se a cópia automática não funcionar, o texto será selecionado e você poderá tocar em "Copiar" no menu.</p>
+            <strong>⚠️ Importante:</strong>
+            <p>Toque no botão verde abaixo para copiar o texto automaticamente.</p>
         </div>
 
         <textarea id="textoArea" class="texto-area" readonly></textarea>
 
-        <button id="copyBtn" class="btn-copy">
+        <button id="copyBtn" class="btn-copy pulse">
             📋 COPIAR TEXTO
         </button>
 
         <div id="status" class="status"></div>
 
-        <p class="close-info">Pode fechar esta aba depois de copiar</p>
+        <p class="close-info" id="closeInfo">Toque no botão para copiar</p>
     </div>
 
     <script>
+        // Pega o texto do parâmetro ?texto=
         const urlParams = new URLSearchParams(window.location.search);
-        const textoParaCopiar = urlParams.get('texto') || 
-                               decodeURIComponent(window.location.hash.substring(1)) || 
-                               'Nenhum texto fornecido';
+        let textoParaCopiar = urlParams.get('texto') || 'Nenhum texto fornecido';
+        
+        // Decodifica caracteres especiais caso venha codificado
+        try {
+            textoParaCopiar = decodeURIComponent(textoParaCopiar);
+        } catch (e) {
+            // Se já estiver decodificado, mantém como está
+        }
         
         const textoArea = document.getElementById('textoArea');
         const copyBtn = document.getElementById('copyBtn');
@@ -201,6 +244,10 @@
         const title = document.getElementById('title');
         const subtitle = document.getElementById('subtitle');
         const instructionBox = document.getElementById('instructionBox');
+        const closeInfo = document.getElementById('closeInfo');
+
+        let userInteracted = false;
+        let copiado = false;
 
         // Coloca o texto na textarea
         textoArea.value = textoParaCopiar;
@@ -208,40 +255,9 @@
         // Ajusta altura da textarea
         textoArea.style.height = Math.min(Math.max(textoArea.scrollHeight, 120), 300) + 'px';
 
-        // Detecta se está em navegador interno
-        function isInAppBrowser() {
-            const ua = navigator.userAgent || navigator.vendor || window.opera;
-            
-            const inAppBrowsers = [
-                'FBAN', 'FBAV', 'Instagram', 'Line', 'WhatsApp', 
-                'Twitter', 'LinkedIn', 'Snapchat', 'Telegram', 'micromessenger'
-            ];
-
-            return inAppBrowsers.some(browser => 
-                ua.toLowerCase().indexOf(browser.toLowerCase()) > -1
-            );
-        }
-
-        // Redireciona para navegador externo automaticamente
-        function redirectToExternalBrowser() {
-            if (isInAppBrowser()) {
-                const currentUrl = window.location.href;
-                
-                // Para iOS
-                if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                    // Tenta abrir no Safari diretamente
-                    window.location.href = currentUrl;
-                } 
-                // Para Android
-                else {
-                    // Tenta abrir no Chrome
-                    window.location.href = `googlechrome://navigate?url=${encodeURIComponent(currentUrl)}`;
-                    
-                    // Fallback: Intent do Android após delay
-                    setTimeout(() => {
-                        window.location.href = `intent://${currentUrl.replace(/^https?:\/\//, '')}#Intent;scheme=https;action=android.intent.action.VIEW;end`;
-                    }, 500);
-                }
+        function vibrate() {
+            if ('vibrate' in navigator) {
+                navigator.vibrate([100, 50, 100]);
             }
         }
 
@@ -250,23 +266,14 @@
             status.className = 'status show ' + type;
         }
 
-        function selectText() {
-            textoArea.focus();
-            textoArea.select();
-            textoArea.setSelectionRange(0, textoArea.value.length);
-            
-            textoArea.classList.add('highlight');
-            setTimeout(() => textoArea.classList.remove('highlight'), 600);
-            
-            title.textContent = '✨ Texto selecionado!';
-            subtitle.textContent = 'Agora toque em "Copiar" no menu';
-            showStatus('👆 Toque em "Copiar" no menu que apareceu', 'info');
+        function hideInstruction() {
+            instructionBox.style.display = 'none';
         }
 
-        async function copyText() {
+        async function copyTextToClipboard() {
             let copied = false;
 
-            // Método 1: Clipboard API
+            // Método 1: Clipboard API (mais moderno e confiável)
             if (navigator.clipboard && window.isSecureContext) {
                 try {
                     await navigator.clipboard.writeText(textoParaCopiar);
@@ -276,27 +283,28 @@
                 }
             }
             
-            // Método 2: Selecionar e usar execCommand
+            // Método 2: execCommand com seleção
             if (!copied) {
                 try {
                     textoArea.focus();
                     textoArea.select();
                     textoArea.setSelectionRange(0, textoArea.value.length);
-                    
                     copied = document.execCommand('copy');
                 } catch (err) {
                     console.log('execCommand falhou:', err);
                 }
             }
 
-            // Método 3: Criar textarea temporária
+            // Método 3: Textarea temporária
             if (!copied) {
                 try {
                     const temp = document.createElement('textarea');
                     temp.value = textoParaCopiar;
                     temp.style.position = 'fixed';
                     temp.style.left = '-9999px';
+                    temp.style.opacity = '0';
                     document.body.appendChild(temp);
+                    temp.focus();
                     temp.select();
                     copied = document.execCommand('copy');
                     document.body.removeChild(temp);
@@ -305,62 +313,82 @@
                 }
             }
 
+            return copied;
+        }
+
+        async function handleCopy() {
+            if (copiado) return;
+
+            // Efeito visual no botão
+            copyBtn.classList.add('ripple');
+            setTimeout(() => copyBtn.classList.remove('ripple'), 600);
+
+            const copied = await copyTextToClipboard();
+
             if (copied) {
-                // Sucesso!
+                copiado = true;
+                vibrate();
+                
                 textoArea.classList.add('copied');
-                title.textContent = '✅ COPIADO!';
-                subtitle.textContent = 'Pode colar agora!';
+                title.textContent = '✅ COPIADO COM SUCESSO!';
+                subtitle.textContent = 'Agora você pode colar onde quiser';
+                copyBtn.classList.remove('pulse');
                 copyBtn.classList.add('success');
                 copyBtn.textContent = '✅ TEXTO COPIADO!';
-                showStatus('✅ Texto copiado com sucesso! Cole onde quiser', 'success');
-                instructionBox.style.display = 'none';
+                copyBtn.disabled = true;
+                showStatus('✅ Texto copiado! Redirecionando para o WhatsApp...', 'success');
+                hideInstruction();
+                closeInfo.textContent = '✅ Redirecionando para o WhatsApp em 2 segundos...';
+                closeInfo.style.color = '#28a745';
+                closeInfo.style.fontWeight = '600';
                 
-                // Tenta fechar após 2 segundos
+                // Redireciona para o WhatsApp após 2 segundos
                 setTimeout(() => {
-                    try {
-                        window.close();
-                    } catch (e) {
-                        showStatus('✅ Copiado! Pode fechar esta aba', 'success');
-                    }
+                    // Abre o WhatsApp (funciona em mobile e desktop)
+                    window.location.href = 'https://wa.me/';
                 }, 2000);
-                
-                return true;
             } else {
-                // Se não copiar, seleciona para cópia manual
-                selectText();
-                return false;
+                vibrate();
+                textoArea.focus();
+                textoArea.select();
+                textoArea.setSelectionRange(0, textoArea.value.length);
+                textoArea.classList.add('highlight');
+                setTimeout(() => textoArea.classList.remove('highlight'), 600);
+                
+                title.textContent = '📝 Texto selecionado';
+                subtitle.textContent = 'Toque em "Copiar" no menu que apareceu';
+                showStatus('👆 Toque em "Copiar" no menu ou tente novamente', 'info');
             }
         }
 
-        // Botão de copiar - sempre tenta copiar primeiro, se falhar seleciona
+        // Evento do botão principal
         copyBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            await copyText();
+            userInteracted = true;
+            await handleCopy();
         });
 
-        // Clicar na textarea também tenta copiar
+        // Permitir seleção manual se necessário
         textoArea.addEventListener('click', function() {
+            if (copiado) return;
             this.select();
             this.setSelectionRange(0, this.value.length);
+            showStatus('👆 Texto selecionado. Toque em "Copiar" ou use o botão verde', 'info');
         });
 
-        // Ao carregar a página
-        window.addEventListener('load', async () => {
-            // Tenta redirecionar para navegador externo primeiro
-            redirectToExternalBrowser();
-            
-            // Aguarda 500ms
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // Tenta copiar automaticamente
-            const copied = await copyText();
-            
-            // Se não conseguiu, seleciona após 1s
-            if (!copied) {
-                setTimeout(() => {
-                    selectText();
-                }, 1000);
+        // Detecta primeira interação do usuário para tentar cópia automática
+        let firstInteraction = true;
+        document.addEventListener('click', async () => {
+            if (firstInteraction && !copiado) {
+                firstInteraction = false;
+                await handleCopy();
             }
+        }, { once: true });
+
+        // Foco inicial na página
+        window.addEventListener('load', () => {
+            // Apenas prepara a interface, aguarda interação do usuário
+            copyBtn.focus();
         });
     </script>
 </body>
