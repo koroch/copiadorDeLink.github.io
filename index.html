@@ -381,42 +381,11 @@
 
         // Tenta copiar automaticamente ao carregar
         window.addEventListener('load', async () => {
-            // Aguarda 500ms antes de tentar copiar
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Aguarda 600ms e simula clique no botão para forçar a cópia
+            await new Promise(resolve => setTimeout(resolve, 600));
             
-            // Tenta copiar automaticamente
-            const copied = await copyTextToClipboard();
-            
-            if (copied) {
-                // Sucesso na cópia automática!
-                copiado = true;
-                vibrate();
-                
-                textoArea.classList.add('copied');
-                title.textContent = '✅ COPIADO AUTOMATICAMENTE!';
-                subtitle.textContent = 'Texto já está na área de transferência';
-                copyBtn.classList.remove('pulse');
-                copyBtn.classList.add('success');
-                copyBtn.textContent = '✅ JÁ COPIADO!';
-                copyBtn.disabled = true;
-                showStatus('✅ Texto copiado automaticamente! Pode colar onde precisar', 'success');
-                hideInstruction();
-                closeInfo.textContent = '✅ Fechando em 1.5 segundos...';
-                closeInfo.style.color = '#28a745';
-                closeInfo.style.fontWeight = '600';
-                
-                // Fecha automaticamente após 1500ms
-                setTimeout(() => {
-                    window.close();
-                    setTimeout(() => {
-                        closeInfo.textContent = '✅ Pronto! Pode fechar esta aba manualmente';
-                    }, 500);
-                }, 1500);
-            } else {
-                // Se a cópia automática falhar, mostra o botão pulsando
-                instructionBox.innerHTML = '<strong>⚠️ Cópia automática bloqueada pelo navegador</strong><p>Toque no botão verde abaixo para copiar.</p>';
-                copyBtn.focus();
-            }
+            // Simula o clique no botão (isso garante que há interação do usuário)
+            copyBtn.click();
         });
     </script>
 </body>
